@@ -1,382 +1,605 @@
 # Professional Service Request & Complaint Management System
 
-A full-stack platform for organizations that provide professional services
-and need a structured way to receive service requests, assign staff, track
-work, collect documents, handle complaints, and measure service performance.
+A full-stack platform for organizations that provide professional services and need a structured way to receive service requests, assign staff, track work, manage complaints, monitor SLAs, collect documents, and measure service performance.
 
-React (TypeScript) frontend + Flask REST API backend, with role-based and
-object-level authorization enforced entirely on the server.
+Built with **React + TypeScript** on the frontend and **Flask REST API** on the backend, with server-side authentication, role-based authorization, object-level authorization, workflow enforcement, secure file handling, and audit logging.
 
-## Contents
+---
 
-- [Architecture](#architecture)
-- [Features](#features)
-- [User Roles](#user-roles)
-- [Project Structure](#project-structure)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Backend Setup](#backend-setup)
-- [Frontend Setup](#frontend-setup)
-- [Database Setup](#database-setup)
-- [Environment Variables](#environment-variables)
-- [API Documentation](#api-documentation)
-- [Security](#security)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
+## ✨ Overview
 
-## Architecture
+The **Professional Service Request & Complaint Management System** provides a centralized platform for managing the complete service lifecycle — from submitting a request to assignment, scheduling, work execution, SLA monitoring, resolution, customer confirmation, and feedback.
 
+The system supports multiple user roles with different permissions and provides dedicated dashboards and workflows for customers, service agents/technicians, supervisors, and administrators.
+
+It is designed with a strong focus on **security, authorization, workflow integrity, service performance, and maintainability**.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer             | Technologies                                  |
+| ----------------- | --------------------------------------------- |
+| Frontend          | React, TypeScript, Vite                       |
+| Backend           | Python, Flask REST API                        |
+| ORM               | Flask-SQLAlchemy                              |
+| Database          | PostgreSQL / SQLite                           |
+| Authentication    | Flask-Login                                   |
+| CSRF Protection   | Flask-WTF / CSRFProtect                       |
+| Authorization     | Server-side RBAC + Object-Level Authorization |
+| Migrations        | Alembic / Flask-Migrate                       |
+| Testing           | Pytest                                        |
+| Charts            | Recharts                                      |
+| Icons             | Lucide React                                  |
+| Email             | SMTP                                          |
+| OAuth             | Google OAuth 2.0                              |
+| Production Server | Gunicorn                                      |
+
+---
+
+## 🚀 Key Features
+
+### Service Request Management
+
+* Complete service request lifecycle
+* Request submission and validation
+* Service categories and priorities
+* Staff assignment
+* Appointment scheduling
+* Work orders and work notes
+* Request status workflow
+* Customer confirmation
+* Customer-initiated reopening
+* Service feedback
+
+### Complaint Management
+
+* Complaint creation and tracking
+* Complaint categories and severity
+* Requested resolution
+* Complaint workflow
+* Escalation management
+* Resolution tracking
+* Customer interaction and feedback
+
+### SLA Management
+
+* Category and priority-based SLA rules
+* Response and resolution deadlines
+* SLA breach detection
+* At-risk request monitoring
+* Live SLA countdowns
+* SLA Monitoring Center
+* Escalation support
+
+### Dashboards & Operations
+
+* Role-specific dashboards
+* KPI cards and charts
+* Request and complaint statistics
+* Customer 360 view
+* Agent workload monitoring
+* Kanban workflow board
+* Recent activity
+* Global search
+* Advanced filtering and sorting
+* Pagination
+* CSV export
+
+### Communication
+
+* Internal messaging
+* User notifications
+* Unread notification counter
+* Email-based OTP verification
+* Password recovery
+* Optional Google Sign-In
+
+### Security
+
+* Session-based authentication
+* CSRF protection
+* Server-side RBAC
+* Object-level authorization
+* BOLA / IDOR protection
+* Secure file uploads
+* Path traversal protection
+* Input validation
+* Mass-assignment protection
+* Rate limiting
+* Restrictive CORS
+* Security headers
+* Audit logging
+* Secure password handling
+
+### Additional Features
+
+* Optional invoicing and payment management
+* Customer feedback and ratings
+* Generated documents
+* Image preview for supported attachments
+* Command palette
+* Breadcrumb navigation
+* Toast notifications
+* Confirmation dialogs
+* Light / dark / system themes
+
+---
+
+# 📸 Screenshots
+
+The following screenshots demonstrate the main user-facing areas of the application.
+
+## 🏠 Project Overview
+
+### Landing Page
+
+![Landing Page](docs/screenshots/landing-page.png)
+
+### Login
+
+![Login](docs/screenshots/login.png)
+
+---
+
+## 👤 Customer Portal
+
+### Customer Dashboard
+
+![Customer Dashboard](docs/screenshots/customer-dashboard.png)
+
+### Create Service Request
+
+![Create Service Request](docs/screenshots/create-service-request.png)
+
+### Request Details
+
+![Request Details](docs/screenshots/request-details.png)
+
+### Complaints
+
+![Complaints](docs/screenshots/complaints.png)
+
+---
+
+## ⚙️ Operations & Administration
+
+### SLA Monitoring Center
+
+![SLA Monitoring Center](docs/screenshots/sla-monitoring.png)
+
+### Kanban Board
+
+![Kanban Board](docs/screenshots/kanban-board.png)
+
+### Administrator Dashboard
+
+![Administrator Dashboard](docs/screenshots/admin-dashboard.png)
+
+---
+
+# 👥 User Roles
+
+The application provides four primary roles with server-enforced permissions.
+
+| Role                           | Main Capabilities                                                                                                                               |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Customer**                   | Create and manage own requests and complaints, upload attachments, communicate with assigned staff, confirm/reopen resolutions, submit feedback |
+| **Service Agent / Technician** | Work on assigned requests, add work orders and notes, upload evidence, update assigned work                                                     |
+| **Supervisor**                 | Assign staff, manage workflows and SLAs, resolve escalations, monitor requests and complaints                                                   |
+| **Administrator**              | Manage users, service catalog, SLA rules, requests, complaints, audit logs, invoices and payments                                               |
+
+Authorization is enforced on the **backend**, so frontend navigation restrictions are not relied upon as a security boundary.
+
+---
+
+# 🏗️ Architecture
+
+```text
+┌──────────────────────────────────────────────┐
+│          React + TypeScript Frontend         │
+│                   Vite                       │
+└───────────────────────┬──────────────────────┘
+                        │
+                        │ REST API
+                        │ Session Cookie
+                        ▼
+┌──────────────────────────────────────────────┐
+│                Flask REST API                │
+│                                              │
+│  Routes → Services → Models                  │
+│                                              │
+│  Authentication                              │
+│  RBAC + Object-Level Authorization           │
+│  CSRF Protection                             │
+│  Validation                                  │
+│  SLA / Workflow Engine                       │
+│  Audit Logging                               │
+│  Secure File Handling                        │
+└───────────────────────┬──────────────────────┘
+                        │
+                        │ SQLAlchemy
+                        ▼
+┌──────────────────────────────────────────────┐
+│              Relational Database             │
+│                                              │
+│       PostgreSQL / SQLite                    │
+└──────────────────────────────────────────────┘
 ```
-React Frontend (Vite + TypeScript)
-        ↓  fetch, credentials: "include"
-Flask REST API  (routes → services → models)
-        ↓  Flask-SQLAlchemy (parameterized ORM)
-Relational Database  (PostgreSQL in production; SQLite for local/dev/tests)
-```
 
-- **Authentication**: session cookie (HttpOnly, SameSite, Secure in
-  production) issued by Flask-Login on `/api/auth/login`. The React app
-  never stores a token; the browser sends the cookie automatically.
-- **CSRF**: Flask-WTF `CSRFProtect` validates an `X-CSRFToken` header on
-  every state-changing request. The frontend fetches the token once from
-  `/api/auth/csrf-token` and attaches it automatically (see
-  `frontend/src/services/apiClient.ts`).
-- **Authorization**: two independent layers, both server-side only.
-  1. **RBAC** — `@roles_required(...)` decorators gate entire endpoints by
-     role (`app/security/authz.py`).
-  2. **Object-level** — `can_access_service_request`, `can_access_complaint`,
-     etc. check the actual relationship between the logged-in user and the
-     specific record before returning or mutating it. Knowing an ID is
-     never sufficient on its own.
-  React route guards (`ProtectedRoute.tsx`) exist purely for UX/navigation;
-  they grant no access on their own.
-- **File handling**: uploads are validated (extension allow-list, content
-  sniffing, executable-signature rejection), stored under a
-  server-generated random filename, and served only through an
-  authenticated, authorization-checked download endpoint. The original
-  filename is stored for display but never used as a filesystem path.
-- **Audit logging**: `app/services/audit.py` records actor, action, entity,
-  result, and timestamp for every state-changing operation into the
-  `audit_logs` table, which is exposed only via a read-only endpoint.
+The frontend communicates with the Flask backend through REST APIs.
 
-## Features
+Authentication is handled through a server-managed session cookie. Authorization and business rules are enforced by the backend.
 
-- Service request lifecycle: submission → validation → assignment →
-  scheduling → work execution → SLA monitoring → resolution → customer
-  confirmation → closure/feedback, with a server-enforced status state
-  machine (including customer-initiated reopening). Submission requires
-  category, description, location, priority, and preferred date — the
-  backend rejects incomplete requests outright.
-- OTP-gated signup: registering creates an unverified account, emails a
-  one-time verification code, and blocks login until the code is
-  confirmed. Codes are hashed, expire, and are attempt-limited.
-- Forgot password: issues a temporary password by email (never a
-  plaintext-in-URL reset link) and forces the user to set a new password
-  before any other action succeeds — enforced server-side on every
-  request, not just as a frontend redirect.
-- Strong password policy (8+ characters, upper/lower/digit/special
-  character) enforced identically at signup, password change, and
-  forced password reset.
-- SLA engine: response/resolution deadlines computed server-side from
-  category + priority at creation time; breach and at-risk detection.
-- Complaint workflow with mandatory category, severity, and requested
-  resolution, and a status state machine that blocks closing/resolving
-  without a recorded resolution.
-- Escalation tracking (type, escalated-by/to, reason, resolution).
-- Assignment (supervisor/admin only — customers can never self-assign),
-  appointments/scheduling, work orders and work notes.
-- Secure file attachments and generated documents (reports/invoices/photos),
-  with inline preview for images.
-- Internal messaging scoped to participants only, and per-user
-  notifications with an unread-count bell in the navigation.
-- Optional invoicing module: invoices and payments, restricted to
-  admin/the owning customer.
-- Customer feedback/rating after resolution.
-- Role-scoped enterprise dashboard: KPIs, charts (requests over time, by
-  status, by priority, by category), recent activity, tailored per role
-  (customers see only their own data).
-- SLA Monitoring Center: breached / at-risk / within-SLA buckets with
-  live countdowns.
-- Customer 360 view, agent workload view (supervisor/admin).
-- Kanban board with drag-and-drop status changes — every drop is
-  re-validated server-side against the real workflow rules.
-- Global search across requests, complaints, customers, and users —
-  server-side, role-scoped, debounced.
-- Advanced filtering, sorting, and pagination on all list views, plus
-  CSV export (scoped to the same authorization/filter rules as the list).
-- Command palette (Ctrl/Cmd+K), breadcrumbs, toast notifications,
-  confirmation dialogs, and light/dark/system theme.
-- Read-only audit log viewer for admins/supervisors.
+For the complete architecture and design details, see:
 
-## User Roles
+* [`Architecture Documentation`](docs/architecture.md)
+* [`Database Documentation`](docs/database.md)
+* [`API Documentation`](docs/api.md)
 
-| Role | Can | Cannot |
-|---|---|---|
-| **Customer** | Create/view own requests & complaints, upload attachments, message assigned staff, confirm/reopen resolutions, submit feedback | Assign staff, change internal status directly, see other customers' records |
-| **Service Agent / Technician** | View/work assigned requests, log work orders/notes, upload evidence, update status on assigned work | Assign requests, access requests they're not assigned to |
-| **Supervisor** | Assign staff, manage SLA/status transitions, resolve escalations, view all requests/complaints, manage users (limited) | Modify audit logs, delete business records |
-| **Administrator** | Full access: users, service catalog, SLA rules, all requests/complaints, audit logs, invoices/payments | — |
+---
 
-## Project Structure
+# 📁 Project Structure
 
-```
+```text
 .
-├── backend/                 Flask REST API
+├── backend/
 │   ├── app/
-│   │   ├── routes/          One blueprint per resource
-│   │   ├── models/          SQLAlchemy models (grouped by domain)
-│   │   ├── services/        SLA engine, workflow/status rules, audit logging
-│   │   ├── security/        RBAC + object-level authorization
-│   │   └── utils/           File handling, input validation
-│   ├── migrations/          Flask-Migrate/Alembic migrations
-│   ├── tests/                Pytest suite (auth, RBAC, IDOR, workflow, files)
+│   │   ├── routes/          API route blueprints
+│   │   ├── models/          SQLAlchemy models
+│   │   ├── services/        Business and application services
+│   │   ├── security/        Authorization and security logic
+│   │   └── utils/           Validation and file utilities
+│   ├── migrations/          Database migrations
+│   ├── tests/               Automated backend tests
 │   ├── config.py
 │   ├── run.py
-│   ├── seed.py               Local/demo seed data
-│   ├── requirements.txt
-│   └── .env.example
-├── frontend/                 React + TypeScript + Vite
-│   └── src/
-│       ├── pages/            Route-level views
-│       ├── components/       Shared UI
-│       ├── layouts/          App shell/navigation
-│       ├── routes/           Route guards
-│       ├── context/          Auth state
-│       ├── services/         API client + per-resource calls
-│       └── types/            Shared TypeScript types
-├── docs/                     architecture.md, security.md, api.md, database.md, deployment.md
-└── .gitignore
+│   ├── seed.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/      Reusable UI components
+│   │   ├── context/         Application state
+│   │   ├── layouts/         Application layouts
+│   │   ├── pages/           Application pages
+│   │   ├── routes/          Protected routes
+│   │   ├── services/        API services
+│   │   ├── types/           TypeScript types
+│   │   └── utils/           Frontend utilities
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── vite.config.ts
+│
+├── docs/
+│   ├── api.md
+│   ├── architecture.md
+│   ├── database.md
+│   ├── deployment.md
+│   ├── security.md
+│   └── screenshots/
+│
+├── .gitignore
+├── LICENSE
+└── README.md
 ```
 
-## Requirements
+---
 
-- Python 3.11+
-- Node.js 20+ and npm 10+
-- PostgreSQL 14+ (production) — SQLite works out of the box for local
-  development and the test suite, no separate install needed
-- (optional) `libmagic` system library for stronger file-content sniffing
-  in `app/utils/files.py` — the app degrades gracefully without it
+# 📋 Requirements
 
-## Installation
+Before running the project locally, make sure you have:
 
-Clone the repository, then set up the backend and frontend as described
-below. The two run as independent processes during development.
+* **Python 3.11+**
+* **Node.js 20+**
+* **npm 10+**
 
-## Backend Setup
+For production:
+
+* **PostgreSQL 14+**
+
+SQLite is supported for local development and automated testing.
+
+---
+
+# ⚡ Quick Start
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/HuzaifaAIDev/complaint-management-system.git
+cd complaint-management-system
+```
+
+---
+
+## 2. Backend Setup
+
+Navigate to the backend:
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-cp .env.example .env
-# edit .env: set SECRET_KEY, DATABASE_URL, CORS_ORIGINS, etc.
-
-export FLASK_APP=run.py          # Windows (cmd): set FLASK_APP=run.py
-flask db upgrade                  # creates all tables via migrations
-
-python seed.py                    # optional: creates one demo user per role
-
-flask run                         # or: python run.py
-# API now listening on http://127.0.0.1:5000
 ```
 
-## Frontend Setup
+Create a Python virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+### Windows
+
+```powershell
+.venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create the environment file from the example:
+
+```bash
+cp .env.example .env
+```
+
+Configure the required environment variables in:
+
+```text
+backend/.env
+```
+
+Run database migrations:
+
+```bash
+flask db upgrade
+```
+
+Optional: create demo/seed data:
+
+```bash
+python seed.py
+```
+
+Start the backend:
+
+```bash
+flask run
+```
+
+or:
+
+```bash
+python run.py
+```
+
+The backend runs by default at:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+## 3. Frontend Setup
+
+Open another terminal and navigate to:
 
 ```bash
 cd frontend
-npm install
-
-cp .env.example .env
-# edit .env if your API isn't on the default http://localhost:5000/api
-
-npm run dev
-# App now listening on http://localhost:5173
-
-npm run build                     # production build → frontend/dist
 ```
 
-## Database Setup
-
-- **Local/dev/tests**: the default `DATABASE_URL=sqlite:///dev.db` in
-  `.env.example` needs no setup at all.
-- **Production**: use PostgreSQL.
-  ```bash
-  createdb servicecomplaint
-  createuser svc_app_user --pwprompt          # least-privilege app account
-  ```
-  Set `DATABASE_URL=postgresql+psycopg2://svc_app_user:<password>@<host>:5432/servicecomplaint`
-  in your production environment (never in a committed file), then run
-  `flask db upgrade`.
-- Schema changes are always made via `flask db migrate -m "..."` followed
-  by `flask db upgrade` — never by dropping/recreating the database.
-
-## Email/OTP Setup
-
-Signup verification and password reset both send a one-time code by
-email. This requires SMTP credentials in `backend/.env`:
+Install dependencies:
 
 ```bash
-MAIL_SERVER=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USE_TLS=1
-MAIL_USERNAME=your-account@gmail.com
-MAIL_PASSWORD=your-app-password   # use an app password, not your real account password
-MAIL_DEFAULT_SENDER=your-account@gmail.com
+npm install
 ```
 
-Any standard SMTP provider works (Gmail with an App Password, SendGrid,
-Mailgun, Postmark, your own mail server, etc.) — just point `MAIL_SERVER`
-at it.
+Create the environment file:
 
-**Local development without real email:** if `MAIL_SERVER` is left
-blank, the app does not fail — it logs the OTP/temporary-password code to
-the backend console instead (`flask run` output) so you can complete the
-signup/reset flow without configuring a mailbox. This must not be relied
-on in any real deployment; production requires `MAIL_SERVER` to be set.
+```bash
+cp .env.example .env
+```
 
-## Google Sign-In Setup
+Configure the API URL if required.
 
-"Continue with Google" is a standard OAuth 2.0 authorization-code flow —
-no third-party SDK, three plain HTTPS calls
-(`app/services/google_oauth.py`). It's entirely optional: the frontend
-calls `GET /api/auth/google/config` on load and only renders the button
-when the backend reports it's configured.
+Start the development server:
 
-To enable it:
+```bash
+npm run dev
+```
 
-1. In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials),
-   create an **OAuth client ID** of type **Web application**.
-2. Add an Authorized redirect URI matching `GOOGLE_REDIRECT_URI` exactly,
-   e.g. `http://localhost:5000/api/auth/google/callback` for local dev.
-3. Set in `backend/.env`:
-   ```bash
-   GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-   GOOGLE_CLIENT_SECRET=your-client-secret
-   GOOGLE_REDIRECT_URI=http://localhost:5000/api/auth/google/callback
-   FRONTEND_URL=http://localhost:5173
-   ```
+The frontend runs by default at:
 
-How it works: clicking the button navigates the browser (not a fetch) to
-`/api/auth/google/login`, which redirects to Google's consent screen with
-a random CSRF `state` stored in the session. Google redirects back to
-`/api/auth/google/callback`, which validates `state`, exchanges the code
-for an identity, and either logs in an existing account (matched by
-verified email) or creates a new customer account — then redirects the
-browser to `${FRONTEND_URL}/oauth/callback`, which refreshes the
-frontend's session state and routes to the dashboard. Accounts created
-this way have `auth_provider = "google"` and can never log in with a
-password (the password field is set to an unusable random value).
+```text
+http://localhost:5173
+```
 
-## Environment Variables
+To create a production build:
 
-### Backend (`backend/.env`, see `backend/.env.example`)
+```bash
+npm run build
+```
 
-| Variable | Purpose |
-|---|---|
-| `SECRET_KEY` | Flask session/CSRF signing key. Required in production. |
-| `DATABASE_URL` | SQLAlchemy connection string. |
-| `MAIL_SERVER` | SMTP server for OTP/reset emails. If unset, codes are logged server-side instead of emailed, so local dev works without real credentials — see [Email/OTP setup](#emailotp-setup). |
-| `MAIL_PORT` | SMTP port (587 for TLS, 465 for SSL). |
-| `MAIL_USE_TLS` / `MAIL_USE_SSL` | Transport security — use exactly one, not both. |
-| `MAIL_USERNAME` / `MAIL_PASSWORD` | SMTP credentials. Never commit real values. |
-| `MAIL_DEFAULT_SENDER` | From-address for outgoing email. |
-| `OTP_EXPIRY_MINUTES` | How long a verification/reset code stays valid (default 10). |
-| `OTP_MAX_ATTEMPTS` | Attempts allowed per code before it's rejected (default 5). |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth 2.0 credentials for "Continue with Google". Leave blank to disable — the button hides itself automatically when unset. |
-| `GOOGLE_REDIRECT_URI` | Must exactly match an Authorized redirect URI configured on the Google OAuth client (e.g. `http://localhost:5000/api/auth/google/callback`). |
-| `FRONTEND_URL` | Where the backend sends the browser after a Google login completes (e.g. `http://localhost:5173`). |
-| `CORS_ORIGINS` | Comma-separated list of trusted frontend origins. |
-| `SESSION_COOKIE_SECURE` | `1` in production (HTTPS only). |
-| `SESSION_COOKIE_SAMESITE` | Cookie SameSite policy (default `Lax`). |
-| `PERMANENT_SESSION_LIFETIME_MINUTES` | Session idle timeout. |
-| `UPLOAD_FOLDER` | Where uploaded files are stored on disk. |
-| `MAX_CONTENT_LENGTH_MB` | Max request/upload size. |
-| `RATELIMIT_STORAGE_URI` | `memory://` for dev, `redis://...` for production. |
-| `DEFAULT_RESPONSE_HOURS` / `DEFAULT_RESOLUTION_HOURS` | SLA fallback when no explicit rule exists. |
-| `REQUEST_REF_PREFIX` | Prefix for generated request reference numbers. |
+---
 
-### Frontend (`frontend/.env`, see `frontend/.env.example`)
+# 🗄️ Database
 
-| Variable | Purpose |
-|---|---|
-| `VITE_API_BASE_URL` | Base URL of the Flask API. Never put secrets here — anything bundled into a Vite build is visible to end users. |
+### Local Development
 
-## API Documentation
+SQLite can be used for local development and testing.
 
-See [`docs/api.md`](docs/api.md) for the full endpoint reference
-(method, path, auth/role requirements, request/response shape).
+Example:
 
-## Security
+```text
+DATABASE_URL=sqlite:///dev.db
+```
 
-See [`docs/security.md`](docs/security.md) for the full write-up. Summary:
-OTP-gated email verification at signup, Argon2id password hashing with a
-strong complexity policy (8+ chars, upper/lower/digit/special) and account
-lockout, forgot-password via a one-time emailed temporary password that
-forces a password change (enforced server-side on every request, not just
-in the UI), session-cookie auth with CSRF protection, server-enforced
-RBAC + object-level authorization on every resource, mass-assignment
-protection (privileged fields are never accepted from client input),
-mandatory-field validation on requests/complaints so nothing incomplete
-can be submitted, validated/sandboxed file uploads with path-traversal
-protection, parameterized ORM queries, restrictive CORS, production
-security headers, rate limiting on sensitive endpoints, and audit logging
-that never records secrets or OTP codes.
+### Production
 
-## Testing
+PostgreSQL is recommended for production deployments.
+
+Configure the PostgreSQL connection through the `DATABASE_URL` environment variable and run:
+
+```bash
+flask db upgrade
+```
+
+Database schema changes should be managed through migrations rather than manually recreating the database.
+
+---
+
+# 🔐 Security
+
+Security is a core part of the application architecture.
+
+The system includes:
+
+* OTP-based email verification
+* Secure password hashing
+* Strong password requirements
+* Account lockout controls
+* Session-cookie authentication
+* CSRF protection
+* Server-side RBAC
+* Object-level authorization
+* BOLA / IDOR protection
+* Mass-assignment protection
+* Server-side validation
+* Secure file upload handling
+* Path traversal protection
+* Parameterized database queries
+* Restrictive CORS
+* Security headers
+* Rate limiting
+* Audit logging
+* Protected administrative functionality
+
+For the complete security design and implementation details:
+
+➡️ [`Security Documentation`](docs/security.md)
+
+---
+
+# 🧪 Testing
+
+The backend includes an automated Pytest suite covering authentication, authorization, workflows, file handling, SLA functionality, and enterprise features.
+
+Run the complete test suite:
 
 ```bash
 cd backend
-source .venv/bin/activate
-pytest                # full suite
-pytest -v              # verbose
+pytest
 ```
 
-The suite covers: OTP-gated registration and email verification (including
-wrong-code rejection), forgot-password issuing a temporary password that
-invalidates the old one, server-side enforcement blocking every endpoint
-until a temporary password is changed, account lockout, generic auth
-error messages, password exposure checks, mandatory-field validation on
-requests/complaints, SLA deadline computation and tamper-resistance,
-IDOR/BOLA (cross-customer/cross-role access attempts), invalid status
-transitions, mass-assignment protection, complaint
-resolution-before-closing enforcement, role-scoped dashboards, SLA
-monitoring access control, Customer 360
-ownership checks, agent workload admin-only access, global search
-scoping, CSV export scoping, disallowed file types, and cross-account
-attachment access.
+For verbose output:
 
-## Deployment
+```bash
+pytest -v
+```
 
-See [`docs/deployment.md`](docs/deployment.md) for full instructions.
-Summary: run the backend with a production WSGI server (`gunicorn`), the
-frontend as a static build served by a CDN/static host or reverse proxy,
-PostgreSQL as the database, HTTPS everywhere with HSTS enabled, and all
-secrets supplied via environment variables — never committed.
+Test coverage includes areas such as:
 
-## Troubleshooting
+* Authentication
+* OTP verification
+* Password recovery
+* Account security
+* RBAC
+* Object-level authorization
+* BOLA / IDOR
+* Service request validation
+* Complaint workflows
+* SLA rules
+* Status transitions
+* File upload security
+* Dashboard authorization
+* Search authorization
+* CSV export authorization
+* Cross-account resource protection
 
-| Problem | Likely cause / fix |
-|---|---|
-| `RuntimeError: SECRET_KEY must be set in production` | Set `SECRET_KEY` in the production environment. |
-| Frontend requests fail with CORS errors | Confirm `CORS_ORIGINS` in backend `.env` includes your frontend's exact origin. |
-| `401` on every request from the frontend | Cookie not being sent — confirm the frontend is calling the correct `VITE_API_BASE_URL` and that `credentials: "include"` isn't blocked by a mismatched CORS origin. |
-| `400 validation_error` on login/register | Check the `fields` object in the JSON response for the specific field message. |
-| Registered but can't log in | Check the backend console log for the OTP code (if `MAIL_SERVER` isn't configured) or your inbox, then verify via `/verify-email`. Login is blocked until the email is verified. |
-| Forgot-password email never arrives | Confirm `MAIL_SERVER`/`MAIL_USERNAME`/`MAIL_PASSWORD` are set correctly; without them the temporary password is logged to the backend console instead. |
-| Stuck on "set a new password" screen | This means `must_change_password` is set on the account (e.g. after a forgot-password request) — the backend blocks every other endpoint until a new password is submitted there. |
-| `403 password_change_required` from the API | Same as above — call `/api/auth/change-password` first. |
-| "Continue with Google" button doesn't appear | `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URI` aren't all set in `backend/.env` — the button only renders when the backend reports it's configured. |
-| Google login redirects back with `?error=oauth_failed` | Usually a redirect URI mismatch — confirm `GOOGLE_REDIRECT_URI` matches an Authorized redirect URI on the Google OAuth client exactly, including scheme and port. |
-| File upload rejected | Extension not in the allow-list, or content sniffing detected a mismatch. See `ALLOWED_UPLOAD_EXTENSIONS` in `config.py`. |
-| `flask db upgrade` fails on a fresh clone | Ensure `DATABASE_URL` is set and the target database/user exists before running migrations. |
+---
 
-## License
+# 📚 Documentation
 
-No specific license has been requested for this project. Add a `LICENSE`
-file with the license of your choice before publishing the repository
-publicly (e.g. MIT, Apache-2.0), or keep it private if it's for
-coursework submission only.
+Detailed technical documentation is available in the `docs/` directory.
+
+| Documentation                          | Description                                                  |
+| -------------------------------------- | ------------------------------------------------------------ |
+| [`API Documentation`](docs/api.md)     | API endpoints, authentication, roles, requests and responses |
+| [`Architecture`](docs/architecture.md) | Application architecture and design                          |
+| [`Database`](docs/database.md)         | Database structure and relationships                         |
+| [`Security`](docs/security.md)         | Security controls and implementation                         |
+| [`Deployment`](docs/deployment.md)     | Production deployment guidance                               |
+
+---
+
+# 🚀 Deployment
+
+For production deployment instructions, see:
+
+➡️ [`Deployment Documentation`](docs/deployment.md)
+
+The recommended production setup uses:
+
+```text
+Users
+  │
+  ▼
+HTTPS / Reverse Proxy
+  │
+  ├──────────────► React Static Build
+  │
+  └──────────────► Gunicorn
+                       │
+                       ▼
+                    Flask API
+                       │
+                       ▼
+                   PostgreSQL
+```
+
+Production deployments should use HTTPS, secure environment variables, PostgreSQL, a production WSGI server, appropriate CORS configuration, secure session cookies, and protected file storage.
+
+---
+
+# 📌 Project Highlights
+
+This project demonstrates practical implementation of:
+
+* Full-stack web application development
+* REST API design
+* React + TypeScript development
+* Flask backend development
+* Relational database design
+* Authentication and authorization
+* RBAC and object-level access control
+* Secure file handling
+* Workflow/state-machine enforcement
+* SLA management
+* Automated testing
+* API documentation
+* Production deployment planning
+* Security-focused application design
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+See the [`LICENSE`](LICENSE) file for the complete license text.
+
+---
+
+# 🔗 Repository
+
+**GitHub:**
+https://github.com/HuzaifaAIDev/complaint-management-system
