@@ -1,0 +1,78 @@
+# =========================
+# Environment / Secrets
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# =========================
+# Node / React / Vite
+# =========================
+node_modules/
+frontend/node_modules/
+
+# Build output
+dist/
+frontend/dist/
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Local databases
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# Temporary / Backup files
+# =========================
+*.tmp
+*.temp
+*.bak
+*.backup
+
+
+
+# Application uploaded files
+backend/uploads/
+
+
+
+
+# TypeScript build info
+*.tsbuildinfo
