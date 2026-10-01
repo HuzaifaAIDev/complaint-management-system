@@ -20,7 +20,11 @@ class BaseConfig:
     MAX_CONTENT_LENGTH = int(os.environ.get("MAX_CONTENT_LENGTH_MB", 15)) * 1024 * 1024
     ALLOWED_UPLOAD_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "gif", "doc", "docx", "xls", "xlsx", "txt", "csv"}
 
-    CORS_ORIGINS = [o.strip() for o in os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",") if o.strip()]
+    CORS_ORIGINS = [
+        o.strip()
+        for o in os.environ.get("CORS_ORIGINS", "").split(",")
+        if o.strip()
+    ]
 
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
@@ -52,7 +56,10 @@ class BaseConfig:
     # If no MAIL_SERVER is configured (e.g. local development without a real
     # SMTP account), OTP codes are logged server-side instead of emailed, so
     # the app remains fully usable without requiring real credentials.
-    MAIL_SUPPRESS_SEND = not bool(os.environ.get("MAIL_SERVER"))
+    MAIL_SUPPRESS_SEND = _bool(
+        os.environ.get("MAIL_SUPPRESS_SEND"),
+        not bool(os.environ.get("MAIL_SERVER"))
+    )
 
     OTP_LENGTH = 6
     OTP_EXPIRY_MINUTES = int(os.environ.get("OTP_EXPIRY_MINUTES", 10))
@@ -90,7 +97,10 @@ class TestingConfig(BaseConfig):
 
 class ProductionConfig(BaseConfig):
     DEBUG = False
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = _bool(
+        os.environ.get("SESSION_COOKIE_SECURE"),
+        False
+    )
 
     def __init__(self):
         if not os.environ.get("SECRET_KEY"):
